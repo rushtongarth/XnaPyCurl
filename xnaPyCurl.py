@@ -61,6 +61,7 @@ class xnaPyCurl(object):
 	def experiments(self,projlist,xsiList,columnDict):
 		if self.buf.tell()!=0:
 			self.buf.reset()
+		cols=[]
 		for k,v in columnDict.items():
 			if len(v):
 				cols.append(','.join('%s/%s'%(k,i) for i in v))
