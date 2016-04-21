@@ -27,7 +27,9 @@ class CurlQuery(object):
 		self.c.perform()
 		self.cookie = self.buf.getvalue()
 		self.c.reset()
-		return 1
+		if len(self.cookie)==32:
+			return 1
+		return 0
 	def __getattr__(self,name):
 		if name =='sub':
 			return "{base}/subjects?{payload}"
