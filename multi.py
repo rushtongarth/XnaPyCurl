@@ -1,4 +1,8 @@
 #! /usr/bin/env python
+#Nota bene:
+# This class is an adaptation of an example provided in the pyCurl examples
+# it can be found 
+# here: https://github.com/pycurl/pycurl/blob/master/examples/retriever-multi.py
 
 import json,pycurl,operator as op
 from collections import OrderedDict as OD
@@ -9,7 +13,6 @@ class MultiGrab(object):
 	def __init__(self,pageroot,pagelist=[]):
 		b = page[:-1] if pageroot.endswith('/') else pageroot
 		self.page = b if 'REST' in b and b.endswith('REST') else b+'/REST'
-		#self.page = pageroot
 		self.pl = pagelist
 		self.numpage = len(pagelist)
 		self.nc = 5
@@ -80,12 +83,14 @@ class MultiGrab(object):
 
 
 	def grab(self):
+		## taken from 
 		out = []
 		freelist = self.h[:]
 		num_proc = 0
 		pn = 0
 		while num_proc < self.numpage:
-			# If there is a url to process and a free curl object, add to multi stack
+			# If there is a url to process and a free curl object
+			# then, add to multi stack
 			while self.pl and freelist:
 				url = self.pl.pop(0)
 				c = freelist.pop()
@@ -93,17 +98,16 @@ class MultiGrab(object):
 				c.setopt(pycurl.URL, url)
 				c.setopt(pycurl.WRITEFUNCTION, buf.write)
 				self.m.add_handle(c)
-				# store some info
 				c.buf = buf
 				c.url = url
 				c.bname = 'page_%d'%pn
 				pn+=1
-			# Run the internal curl state machine for the multi stack
+			# Run the curl state machine for the multi stack
 			while 1:
 				ret, num_handles = self.m.perform()
 				if ret != pycurl.E_CALL_MULTI_PERFORM:
 					break
-			# Check for curl objects which have terminated, and add them to the freelist
+			# Add terminated curl objects to the freelist
 			while 1:
 				num_q, ok_list, err_list = self.m.info_read()
 				for c in ok_list:
@@ -122,11 +126,8 @@ class MultiGrab(object):
 				num_proc = num_proc + len(ok_list) + len(err_list)
 				if num_q == 0:
 					break
-			# Currently no more I/O is pending, could do something in the meantime
-			# (display a progress bar, etc.).
-			# We just call select() to sleep until some more data is available.
+			# sleep until some more data is available.
 			self.m.select(1.0)
-		# Cleanup
 		for c in self.h:
 			if c.buf is not None:
 				c.buf.close()
