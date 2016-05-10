@@ -3,8 +3,10 @@
 import json,pycurl
 from collections import OrderedDict as OD
 from cStringIO import StringIO as StringIO
+from single import CurlQuery
+from multi import MultiGrab
 
-class CurlQuery(object):
+class naPyCurl(object):
 	"""CurlQuery: Connect and pull resources from XNAT
 	
 	Class requires an input url to the XNAT API from which 

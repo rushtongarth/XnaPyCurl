@@ -14,9 +14,21 @@ class CurlQuery(object):
 		self.basepage = b if b.endswith('REST') else b+'/REST'
 		self.buf = SIO()
 		self.logged = False
+	def action(self,**kwargs):
+		if self.buf.tell()!=0:
+			self.buf.reset()
+		if self.logged:
+			self.setopt(pycurl.SSLVERSION, pycurl.SSLVERSION_SSLv3)
+			self.setopt(pycurl.COOKIE, 'JSESSIONID=%s'%self.cookie)
+			self.setopt(pycurl.WRITEDATA, self.buf)
+		else:
+			self.setopt(pycurl.SSLVERSION, pycurl.SSLVERSION_SSLv3)
+			self.setopt(pycurl.USERPWD,'{0}:{1}'.format(*creds))
+			self.setopt(pycurl.WRITEDATA, self.buf)
 	def getfromuri(self,uri):
 		if self.buf.tell()!=0:
 			self.buf.reset()
+		self.setopt(pycurl.SSLVERSION, pycurl.SSLVERSION_SSLv3)
 		self.setopt(pycurl.URL, uri)
 		self.setopt(pycurl.COOKIE, 'JSESSIONID=%s'%self.cookie)
 		self.setopt(pycurl.WRITEDATA, self.buf)
@@ -34,6 +46,7 @@ class CurlQuery(object):
 		uri = '{base}/JSESSION'.format(base=self.basepage)
 		self.setopt(pycurl.URL,uri)
 		self.setopt(pycurl.WRITEDATA, self.buf)
+		self.setopt(pycurl.SSLVERSION, pycurl.SSLVERSION_SSLv3)
 		self.setopt(pycurl.USERPWD,'{0}:{1}'.format(*creds))
 		self.c.perform()
 		self.cookie = self.buf.getvalue()
@@ -50,6 +63,7 @@ class CurlQuery(object):
 		uri = '{base}/JSESSION'.format(base=self.basepage)
 		self.setopt(pycurl.URL, uri)
 		body = ''
+		self.setopt(pycurl.SSLVERSION, pycurl.SSLVERSION_SSLv3)
 		self.setopt(pycurl.COOKIE, "JSESSIONID=%s"%self.cookie)
 		self.setopt(pycurl.CUSTOMREQUEST, 'DELETE')
 		self.setopt(pycurl.WRITEDATA, self.buf)
