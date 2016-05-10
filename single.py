@@ -7,6 +7,11 @@ from cStringIO import StringIO as SIO
 
 
 class CurlQuery(object):
+	"""CurlQuery: query xnat with pycurl
+	
+	requires an initial input of the page to which a connection
+	is to be established
+	provides the necessary methods to create a session"""
 	def __init__(self,page):
 		self.c = pycurl.Curl()
 		self.setopt = self.c.setopt
