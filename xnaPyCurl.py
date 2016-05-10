@@ -3,6 +3,8 @@
 import json,pycurl
 from collections import OrderedDict as OD
 from cStringIO import StringIO as StringIO
+from single import CurlQuery
+from multi import MultiGrab
 
 class CurlQuery(object):
 	"""CurlQuery: Connect and pull resources from XNAT
