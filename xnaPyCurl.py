@@ -6,7 +6,7 @@ from cStringIO import StringIO as StringIO
 from single import CurlQuery
 from multi import MultiGrab
 
-class naPyCurl(object):
+class xnaPyCurl(object):
 	"""CurlQuery: Connect and pull resources from XNAT
 	
 	Class requires an input url to the XNAT API from which 
