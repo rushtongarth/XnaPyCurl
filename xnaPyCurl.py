@@ -3,81 +3,84 @@
 import json,pycurl
 from collections import OrderedDict as OD
 from cStringIO import StringIO as StringIO
-from single import CurlQuery
-from multi import MultiGrab
+from single import SingleQuery
+from multi import MultiQuery
+
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
+#login
+#logout
+#getsubjects -single
+#getexperiments -single
+#getassessors -multi
+#getscans -multi
+
 
 class xnaPyCurl(object):
-	"""CurlQuery: Connect and pull resources from XNAT
+	"""xnaPyCurl: Connect and pull resources from XNAT
 	
 	Class requires an input url to the XNAT API from which 
 	resources are to be pulled"""
 	def __init__(self,basepage):
-		self.c = pycurl.Curl()
-		self.setopt = self.c.setopt
 		self.basepage = basepage
-		self.buf = StringIO()
+		self.ci = PKCS1_OAEP.new(RSA.generate(2048))
+
 	def login(self,*creds):
 		"""login method
 		
 		requires user credentials as input as username,password pair
 		gets a session cookie for future actions"""
-		if self.buf.tell()!=0:
-			self.buf.reset()
-		self.setopt(pycurl.URL,self.ses.format(base=self.basepage))
-		self.setopt(pycurl.WRITEDATA, self.buf)
-		self.setopt(pycurl.USERPWD,'{user}:{pasw}'.format(user=creds[0],pasw=creds[1]))
-		self.c.perform()
-		self.cookie = self.buf.getvalue()
-		self.c.reset()
-		if len(self.cookie)==32:
-			return 1
-		return 0
-	def __getattr__(self,name):
-		if name =='sub':
-			return "{base}/subjects?{payload}"
-		elif name == 'asr' or name == 'exp':
-			return "{base}/experiments?{payload}"
-		elif name == 'ses':
-			return "{base}/JSESSION"
-	def logout(self):
-		"""logout method
-		
-		Destroys previously acquired cookie attribute."""
-		if self.buf.tell()!=0:
-			self.buf.reset()
-		uri = self.ses.format(base=self.basepage)
-		self.setopt(pycurl.URL, uri)
-		self.setopt(pycurl.COOKIE, "JSESSIONID=%s"%self.cookie)
-		self.setopt(pycurl.CUSTOMREQUEST, "DELETE")
-		self.setopt(pycurl.WRITEDATA, self.buf)
-		self.c.perform()
-		self.c.close()
-		self.buf.truncate()
-		body = self.buf.getvalue()
-		self.buf.close()
-		return body
-	def get(self,qtype,projlist,xsiList,columnDict):
-		if self.buf.tell()!=0:
-			self.buf.reset()
-		cols=[]
-		for k,v in columnDict.items():
-			if len(v):
-				cols.append(','.join('%s/%s'%(k,i) for i in v))
-			else:
-				cols.append(k)
-		payload=OD([
-			('xsiType',','.join(xsiList)),
-			('columns',','.join(cols)),
-			('format','json'),
-			('project',','.join(projlist)),
-			])
-		joined = '&'.join(k+'='+v for k,v in payload.items())
-		uri = getattr(self,qtype).format(base=self.basepage,payload=joined)
-		self.setopt(pycurl.URL, uri)
-		self.setopt(pycurl.COOKIE, "JSESSIONID=%s"%self.cookie)
-		self.setopt(pycurl.WRITEDATA, self.buf)
-		self.c.perform()
-		self.buf.truncate()
-		return json.loads(self.buf.getvalue())
+		self.cxn = SingleQuery(self.basepage)
+		ccount = self.cxn.login(*creds)
+		self.crds = map(self.ci.encrypt,creds)
+		return ccount
 
-	
+	def loadmulti(self,template,subsess,tail):
+		mq = MultiQuery(self.basepage)
+		ccount = mq.login(*map(self.ci.decrypt,self.crds))
+		urilist = [template.format(subj=k,exp=v)+tail for k,v in subsess.iteritems() if v]
+		mq = mq(urilist)
+		raw = mq.getfromuri()
+		mq.logout()
+		return raw
+
+	def getsubjects(self,project,uri_tail):
+		uri = 'projects/{proj}/subjects?{tail}'.format(proj=project,tail=uri_tail)
+		raw = self.cxn.getfromuri(uri)
+		return [json.loads(raw)]
+	def getexperiments(self,project,uri_tail):
+		uri = 'projects/{proj}/experiments?{tail}'.format(proj=project,tail=uri_tail)
+		raw = self.cxn.getfromuri(uri)
+		return [json.loads(raw)]
+	def getassessors(self,project,subjexpdict,uri_tail):
+		uri = 'projects/{proj}'.format(proj=project)
+		uri += '/subjects/{subj}/experiments/{exp}/assessors?'
+
+		raw = self.loadmulti(uri,subjexpdict,'format=json')
+		return map(json.loads,raw)
+	def getscans(self,project,subjexpdict,uri_tail):
+		uri = 'projects/{proj}'.format(proj=project)
+		uri += '/subjects/{subj}/experiments/{exp}/scans?'
+		raw = self.loadmulti(uri,subjexpdict,'format=json')
+		return map(json.loads,raw)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

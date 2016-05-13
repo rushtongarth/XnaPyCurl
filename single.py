@@ -1,12 +1,11 @@
 #! /usr/bin/env python
 
-import json,pycurl,operator as op
-from collections import OrderedDict as OD
+import pycurl
 from cStringIO import StringIO as SIO
 
 
 
-class CurlQuery(object):
+class SingleQuery(object):
 	"""CurlQuery: query xnat with pycurl
 	
 	requires an initial input of the page to which a connection
@@ -18,49 +17,39 @@ class CurlQuery(object):
 		b = page[:-1] if page.endswith('/') else page
 		self.basepage = b if b.endswith('REST') else b+'/REST'
 		self.buf = SIO()
-		self.logged = False
-	def action(self,**kwargs):
-		if self.buf.tell()!=0:
-			self.buf.reset()
-		if self.logged:
-			self.setopt(pycurl.SSLVERSION, pycurl.SSLVERSION_SSLv3)
-			self.setopt(pycurl.COOKIE, 'JSESSIONID=%s'%self.cookie)
-			self.setopt(pycurl.WRITEDATA, self.buf)
-		else:
-			self.setopt(pycurl.SSLVERSION, pycurl.SSLVERSION_SSLv3)
-			self.setopt(pycurl.USERPWD,'{0}:{1}'.format(*creds))
-			self.setopt(pycurl.WRITEDATA, self.buf)
-	def getfromuri(self,uri):
-		if self.buf.tell()!=0:
-			self.buf.reset()
 		self.setopt(pycurl.SSLVERSION, pycurl.SSLVERSION_SSLv3)
-		self.setopt(pycurl.URL, uri)
-		self.setopt(pycurl.COOKIE, 'JSESSIONID=%s'%self.cookie)
 		self.setopt(pycurl.WRITEDATA, self.buf)
-		self.c.perform()
-		self.buf.truncate()
-		return json.loads(self.buf.getvalue())
+		self.logged = False
 
-	def login(self,*creds,**kwargs):
-		if not self.logged:
-			self.c = pycurl.Curl()
-			self.setopt = self.c.setopt
-			self.buf = SIO()
+	def login(self,*creds):
+		#if not self.logged:
+			#self.c = pycurl.Curl()
+			#self.setopt = self.c.setopt
+			#self.buf = SIO()
 		if self.buf.tell()!=0:
 			self.buf.reset()
 		uri = '{base}/JSESSION'.format(base=self.basepage)
 		self.setopt(pycurl.URL,uri)
-		self.setopt(pycurl.WRITEDATA, self.buf)
-		self.setopt(pycurl.SSLVERSION, pycurl.SSLVERSION_SSLv3)
 		self.setopt(pycurl.USERPWD,'{0}:{1}'.format(*creds))
 		self.c.perform()
+		self.c.unsetopt(pycurl.USERPWD)
 		self.cookie = self.buf.getvalue()
-		self.c.reset()
+
 		if len(self.cookie)==32:
 			self.logged = True
 			return 1
 		else:
 			return 0
+	def getfromuri(self,uri):
+		if self.buf.tell()!=0:
+			self.buf.reset()
+		uri = self.basepage+uri if uri.endswith('/') else self.basepage+'/'+uri
+		self.setopt(pycurl.URL, uri)
+		self.setopt(pycurl.COOKIE, 'JSESSIONID=%s'%self.cookie)
+		self.c.perform()
+		self.buf.truncate()
+		return self.buf.getvalue()
+
 
 	def logout(self):
 		if self.buf.tell()!=0:
@@ -68,10 +57,9 @@ class CurlQuery(object):
 		uri = '{base}/JSESSION'.format(base=self.basepage)
 		self.setopt(pycurl.URL, uri)
 		body = ''
-		self.setopt(pycurl.SSLVERSION, pycurl.SSLVERSION_SSLv3)
 		self.setopt(pycurl.COOKIE, "JSESSIONID=%s"%self.cookie)
 		self.setopt(pycurl.CUSTOMREQUEST, 'DELETE')
-		self.setopt(pycurl.WRITEDATA, self.buf)
+
 		self.c.perform()
 		self.buf.truncate()
 		body = self.buf.getvalue()

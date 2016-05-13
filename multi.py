@@ -4,18 +4,17 @@
 # it can be found 
 # here: https://github.com/pycurl/pycurl/blob/master/examples/retriever-multi.py
 
-import json,pycurl,operator as op
-from collections import OrderedDict as OD
+import pycurl
 from cStringIO import StringIO as SIO
 
 
-class MultiGrab(object):
+class MultiQuery(object):
 	def __init__(self,pageroot,pagelist=[]):
 		b = page[:-1] if pageroot.endswith('/') else pageroot
 		self.page = b if 'REST' in b and b.endswith('REST') else b+'/REST'
 		self.pl = pagelist
 		self.numpage = len(pagelist)
-		self.nc = 5
+		self.nc = 20
 		self.m = pycurl.CurlMulti()
 		self.h = []
 
@@ -46,12 +45,20 @@ class MultiGrab(object):
 		for cookie in self.cj:
 			print "closing cxn: %s"%cookie
 			c.setopt(pycurl.COOKIE, "JSESSIONID=%s"%cookie)
+			c.setopt(pycurl.SSLVERSION, pycurl.SSLVERSION_SSLv3)
 			c.setopt(pycurl.CUSTOMREQUEST, 'DELETE')
 			c.setopt(pycurl.WRITEDATA, buf)
 			c.perform()
 			buf.truncate()
 			body+=buf.getvalue()
 			buf.reset()
+		for c in self.h:
+			if c.buf is not None:
+				c.buf.close()
+				c.buf = None
+			c.close()
+		self.m.close()
+		
 		return body
 	def allocater(self):
 		# Pre-allocate a list of curl objects
@@ -63,6 +70,7 @@ class MultiGrab(object):
 			c.setopt(pycurl.CONNECTTIMEOUT, 30)
 			c.setopt(pycurl.TIMEOUT, 300)
 			c.setopt(pycurl.NOSIGNAL, 1)
+			c.setopt(pycurl.SSLVERSION, pycurl.SSLVERSION_SSLv3)
 			c.setopt(pycurl.COOKIE,'JSESSIONID=%s'%cookie)
 			self.h.append(c)
 	def login(self,*creds):
@@ -73,21 +81,25 @@ class MultiGrab(object):
 		else:
 			self.allocator()
 			numcxn = len(self.cj)
+		if numcxn>1:
+			print 'Serial is for suckers...'
 		return numcxn
 	def logout(self):
 		return self.jardestroyer()
 
 	def __call__(self,pages):
-		mg = MultiGrab(self.page,pagelist=pages)
-		return mg
+		if hasattr(self,'cj'):
+			self.pl = [self.page+i if i.startswith('/') else self.page+'/'+i for i in pages]
+			self.numpage = len(pages)
+			return self
+		else:
+			mg = MultiQuery(self.page,pages)
+			return mg
 
-
-	def grab(self):
-		## taken from 
+	def getfromuri(self):
 		out = []
 		freelist = self.h[:]
-		num_proc = 0
-		pn = 0
+		num_proc,pn = 0,0
 		while num_proc < self.numpage:
 			# If there is a url to process and a free curl object
 			# then, add to multi stack
@@ -96,6 +108,7 @@ class MultiGrab(object):
 				c = freelist.pop()
 				buf = SIO()
 				c.setopt(pycurl.URL, url)
+				c.setopt(pycurl.SSLVERSION, pycurl.SSLVERSION_SSLv3)
 				c.setopt(pycurl.WRITEFUNCTION, buf.write)
 				self.m.add_handle(c)
 				c.buf = buf
@@ -128,10 +141,4 @@ class MultiGrab(object):
 					break
 			# sleep until some more data is available.
 			self.m.select(1.0)
-		for c in self.h:
-			if c.buf is not None:
-				c.buf.close()
-				c.buf = None
-			c.close()
-		self.m.close()
 		return out
