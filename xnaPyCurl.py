@@ -1,19 +1,11 @@
 #! /usr/bin/env python
 
 import json,pycurl
-from collections import OrderedDict as OD
-from cStringIO import StringIO as StringIO
 from single import SingleQuery
 from multi import MultiQuery
-
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
-#login
-#logout
-#getsubjects -single
-#getexperiments -single
-#getassessors -multi
-#getscans -multi
+
 
 
 class xnaPyCurl(object):
@@ -36,6 +28,13 @@ class xnaPyCurl(object):
 		return ccount
 
 	def loadmulti(self,template,subsess,tail):
+		"""load a multiquery pool
+		
+		creates a MultiQuery object from instance
+		template: uri to format for multiquery
+		subsess: subject session dict, keys are subjects; values are sessions
+		tail: columns to output from query
+		returns a list of pulled results"""
 		mq = MultiQuery(self.basepage)
 		ccount = mq.login(*map(self.ci.decrypt,self.crds))
 		urilist = [template.format(subj=k,exp=v)+tail for k,v in subsess.iteritems() if v]

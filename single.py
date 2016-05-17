@@ -43,7 +43,7 @@ class SingleQuery(object):
 	def getfromuri(self,uri):
 		if self.buf.tell()!=0:
 			self.buf.reset()
-		uri = self.basepage+uri if uri.endswith('/') else self.basepage+'/'+uri
+		uri = self.basepage+uri if uri.startswith('/') else self.basepage+'/'+uri
 		self.setopt(pycurl.URL, uri)
 		self.setopt(pycurl.COOKIE, 'JSESSIONID=%s'%self.cookie)
 		self.c.perform()
