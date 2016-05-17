@@ -6,8 +6,6 @@ from multi import MultiQuery
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 
-
-
 class xnaPyCurl(object):
 	"""xnaPyCurl: Connect and pull resources from XNAT
 	
@@ -26,6 +24,12 @@ class xnaPyCurl(object):
 		ccount = self.cxn.login(*creds)
 		self.crds = map(self.ci.encrypt,creds)
 		return ccount
+	def logout(self):
+		"""logout method
+		
+		uses the method from SingleQuery class"""
+		done = self.cxn.logout()
+		return done
 
 	def loadmulti(self,template,subsess,tail):
 		"""load a multiquery pool
