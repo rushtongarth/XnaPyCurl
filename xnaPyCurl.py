@@ -7,38 +7,47 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 
 class xnaPyCurl(object):
-	"""xnaPyCurl: Connect and pull resources from XNAT
+	"""
+	xnaPyCurl: Connect and pull resources from XNAT
 	
 	Class requires an input url to the XNAT API from which 
-	resources are to be pulled"""
+	resources are to be pulled
+	"""
 	def __init__(self,basepage):
 		self.basepage = basepage
 		self.ci = PKCS1_OAEP.new(RSA.generate(2048))
 
 	def login(self,*creds):
-		"""login method
+		"""
+		login method
 		
-		requires user credentials as input as username,password pair
-		gets a session cookie for future actions"""
+		gets a session cookie for future actions
+		:param creds: user credentials as input as username,password pair
+		:return: number of connections
+		"""
 		self.cxn = SingleQuery(self.basepage)
 		ccount = self.cxn.login(*creds)
 		self.crds = map(self.ci.encrypt,creds)
 		return ccount
 	def logout(self):
-		"""logout method
+		"""
+		logout method
 		
-		uses the method from SingleQuery class"""
+		uses the method from SingleQuery class
+		"""
 		done = self.cxn.logout()
 		return done
 
 	def loadmulti(self,template,subsess,tail):
-		"""load a multiquery pool
+		"""
+		load a multiquery pool
 		
 		creates a MultiQuery object from instance
-		template: uri to format for multiquery
-		subsess: subject session dict, keys are subjects; values are sessions
-		tail: columns to output from query
-		returns a list of pulled results"""
+		:param template: uri to format for multiquery
+		:param subsess: subject-session dict, keys are subjects; values are sessions
+		:param tail: columns to output from query
+		:return: a list of pulled results
+		"""
 		mq = MultiQuery(self.basepage)
 		ccount = mq.login(*map(self.ci.decrypt,self.crds))
 		urilist = [template.format(subj=k,exp=v)+tail for k,v in subsess.iteritems() if v]
@@ -48,6 +57,9 @@ class xnaPyCurl(object):
 		return raw
 
 	def getsubjects(self,project,uri_tail):
+		"""
+		get subject data
+		"""
 		uri = 'projects/{proj}/subjects?{tail}'.format(proj=project,tail=uri_tail)
 		raw = self.cxn.getfromuri(uri)
 		return [json.loads(raw)]
