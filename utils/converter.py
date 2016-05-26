@@ -1,16 +1,17 @@
 #! /usr/bin/env python
 
-import os,re,sys,argparser
+import os,re,sys,argparse
 from cStringIO import StringIO as StringIO
 
 buff = StringIO()
 Main_Template="""
+#!/usr/bin/env python
 import pycurl
 from cStringIO import StringIO as StringIO
 {functions}
 """
 functiontemplate="""
-def {funcname}():
+def {funcname}(*args,**kwargs):
 	buffer = StringIO()
 	c = pycurl.Curl()
 	{curloptions}
@@ -51,7 +52,7 @@ parser.add_argument('-f','--file',type=str, nargs='?',help='Input file to conver
 if __name__ == '__main__':
 	args = parser.parse_args()
 	if args.file:
-		func,opts = fileparse(args.file)
-		buildscript(filelist)
+		#func,opts = fileparse(args.file)
+		buildscript([args.file])
 	else:
 		sys.exit(1)
