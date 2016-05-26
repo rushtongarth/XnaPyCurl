@@ -9,17 +9,35 @@ from cStringIO import StringIO as SIO
 
 
 class MultiQuery(object):
+	"""MultiQuery class
+	
+	Class for parallel queries to XNAT
+	"""
 	def __init__(self,pageroot,pagelist=[]):
+		"""
+		Initialize a MultiQuery Object
+		
+		:param pageroot: XNAT API url, NB: this will be prepended to all elements of pagelist
+		
+		:param pagelist: list of page uris of the form
+		projects/<project_ID>...?<querystring>
+		"""
 		b = page[:-1] if pageroot.endswith('/') else pageroot
 		self.page = b if 'REST' in b and b.endswith('REST') else b+'/REST'
 		self.pl = pagelist
 		self.numpage = len(pagelist)
-		self.nc = 20
+		self.nc = 10
 		self.m = pycurl.CurlMulti()
 		self.h = []
 
 	def jarbuilder(self,*creds):
+		"""
+		build a cookiejar of connections
+		NB: This will create multiple connections to the server 
 		
+		:param creds: user login creditentials i.e. username,password
+		:return: integer representing the number of connections that have been established
+		"""
 		c = pycurl.Curl()
 		buf = SIO()
 		uri = '{base}/JSESSION'.format(base=self.page)
@@ -37,6 +55,13 @@ class MultiQuery(object):
 		return len(self.cj)
 
 	def jardestroyer(self):
+		"""
+		disconnection helper function
+		
+		For all connections established in jarbuilder send the
+		disconnect command to the server
+		:returns: server response (empty string if successful)
+		"""
 		c = pycurl.Curl()
 		buf = SIO()
 		uri = uri = '{base}/JSESSION'.format(base=self.page)
@@ -61,7 +86,9 @@ class MultiQuery(object):
 		
 		return body
 	def allocater(self):
-		# Pre-allocate a list of curl objects
+		"""
+		Pre-allocate a list of curl objects
+		"""
 		for cookie in self.cj:
 			c = pycurl.Curl()
 			c.buf = None
@@ -74,6 +101,12 @@ class MultiQuery(object):
 			c.setopt(pycurl.COOKIE,'JSESSIONID=%s'%cookie)
 			self.h.append(c)
 	def login(self,*creds):
+		"""
+		login to XNAT server
+		
+		:param creds: username,password
+		:returns: number of established connections
+		"""
 		if self.jarbuilder(*creds)==self.nc:
 			# this should be logged
 			self.allocater()
@@ -85,9 +118,18 @@ class MultiQuery(object):
 			print 'Serial is for suckers...'
 		return numcxn
 	def logout(self):
+		"""
+		log out of all established connections
+		"""
 		return self.jardestroyer()
 
 	def __call__(self,pages):
+		"""
+		populate the pagelist attribute if not previously done
+		:param pages: a list of uris of the form
+		projects/<project_ID>...?<querystring>
+		:returns: a MultiQuery Object
+		"""
 		if hasattr(self,'cj'):
 			self.pl = [self.page+i if i.startswith('/') else self.page+'/'+i for i in pages]
 			self.numpage = len(pages)
@@ -97,6 +139,12 @@ class MultiQuery(object):
 			return mg
 
 	def getfromuri(self):
+		"""
+		Traverse the pagelist and make the appropriate query to the server
+		NB this strategy was adapted from the pycurl examples, specifically:
+		https://github.com/pycurl/pycurl/blob/master/examples/retriever-multi.py
+		:returns: output from all queries
+		"""
 		out = []
 		freelist = self.h[:]
 		num_proc,pn = 0,0
