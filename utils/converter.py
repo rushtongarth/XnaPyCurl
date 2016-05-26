@@ -39,20 +39,33 @@ def functionbuilder(func,optlist):
 	opts = '\n\t'.join(['c.setopt(c.%s'%base for base in optlist])
 	return functiontemplate.format(funcname=func,curloptions=opts)
 	
-def buildscript(flist):
+def buildscript(flist,ofile=None):
 	funks=[]
 	for f in flist:
 		func,opts = fileparse(f)
 		funks.append(functionbuilder(func,opts))
 	funcstr = '\n'.join(funks)
-	print Main_Template.format(functions=funcstr)
+	pycurlcode=Main_Template.format(functions=funcstr)
+	if ofile:
+		with open(ofile,'w') as out:
+			out.write(pycurlcode)
+		return pycurlcode
+	return pycurlcode
 
 parser = argparse.ArgumentParser(description='Convert libcurl to pycurl.')
 parser.add_argument('-f','--file',type=str, nargs='?',help='Input file to convert to pycurl code')
+parser.add_argument('-o','--output',type=str,nargs='?',help='File where output should be written')
+parser.add_argument('-v','--verbose',action='store_true',help='Print the conversion to standard out even if writing to file')
 if __name__ == '__main__':
 	args = parser.parse_args()
 	if args.file:
-		#func,opts = fileparse(args.file)
-		buildscript([args.file])
+		fls = [args.file]
+		if args.output:
+			script = buildscript(fls,args.output)
+		else:
+			script = buildscript(fls)
+		if args.verbose or not args.output:
+			print script
+		
 	else:
 		sys.exit(1)
