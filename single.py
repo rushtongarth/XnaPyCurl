@@ -8,9 +8,10 @@ from cStringIO import StringIO as SIO
 class SingleQuery(object):
 	"""CurlQuery: query xnat with pycurl
 	
-	requires an initial input of the page to which a connection
-	is to be established
-	provides the necessary methods to create a session"""
+	Requires an initial input of the page to which a connection
+	is to be established.  Provides the necessary methods to create and
+	delete a JSESSION cookie
+	"""
 	def __init__(self,page):
 		self.c = pycurl.Curl()
 		self.setopt = self.c.setopt
@@ -22,10 +23,9 @@ class SingleQuery(object):
 		self.logged = False
 
 	def login(self,*creds):
-		#if not self.logged:
-			#self.c = pycurl.Curl()
-			#self.setopt = self.c.setopt
-			#self.buf = SIO()
+		"""
+		login function
+		"""
 		if self.buf.tell()!=0:
 			self.buf.reset()
 		uri = '{base}/JSESSION'.format(base=self.basepage)
@@ -41,6 +41,9 @@ class SingleQuery(object):
 		else:
 			return 0
 	def getfromuri(self,uri):
+		"""
+		:param uri: query uri to submit to XNAT host
+		"""
 		if self.buf.tell()!=0:
 			self.buf.reset()
 		uri = self.basepage+uri if uri.startswith('/') else self.basepage+'/'+uri
@@ -52,6 +55,9 @@ class SingleQuery(object):
 
 
 	def logout(self):
+		"""
+		disconnect from XNAT host
+		"""
 		if self.buf.tell()!=0:
 			self.buf.reset()
 		uri = '{base}/JSESSION'.format(base=self.basepage)
@@ -59,7 +65,6 @@ class SingleQuery(object):
 		body = ''
 		self.setopt(pycurl.COOKIE, "JSESSIONID=%s"%self.cookie)
 		self.setopt(pycurl.CUSTOMREQUEST, 'DELETE')
-
 		self.c.perform()
 		self.buf.truncate()
 		body = self.buf.getvalue()
