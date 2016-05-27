@@ -12,13 +12,13 @@ from cStringIO import StringIO as StringIO
 """
 functiontemplate="""
 def {funcname}(*args,**kwargs):
-	buffer = StringIO()
+	buff = StringIO()
 	c = pycurl.Curl()
 	{curloptions}
-	c.setopt(c.WRITEDATA, buffer)
+	c.setopt(c.WRITEDATA, buff)
 	c.perform()
 	c.close()
-	body = buffer.getvalue()
+	body = buff.getvalue()
 	return body
 """
 def fileparse(infile):
