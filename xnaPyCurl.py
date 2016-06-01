@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import json,pycurl
+import json
 from getters.single import SingleQuery
 from getters.multi import MultiQuery
 from Crypto.PublicKey import RSA
@@ -59,24 +59,53 @@ class xnaPyCurl(object):
 	def getsubjects(self,project,uri_tail):
 		"""
 		get subject data
+		
+		:param project: name of XNAT project to query
+		:param uri_tail: query string to append to the rest call
+		:return: a list of dictionaries containing query outcome
 		"""
 		uri = 'projects/{proj}/subjects?{tail}'.format(proj=project,tail=uri_tail)
 		raw = self.cxn.getfromuri(uri)
 		return [json.loads(raw)]
 	def getexperiments(self,project,uri_tail):
+		"""
+		get experiment data
+		
+		:param project: name of XNAT project to query
+		:param uri_tail: query string to append to the rest call
+		:return: a list of dictionaries containing query outcome
+		"""
 		uri = 'projects/{proj}/experiments?{tail}'.format(proj=project,tail=uri_tail)
 		raw = self.cxn.getfromuri(uri)
 		return [json.loads(raw)]
 	def getassessors(self,project,subjexpdict,uri_tail):
+		"""
+		get assessor data
+		
+		:param project: name of XNAT project to query
+		:param subjexpdict: dictionary whose keys are subject labels and values
+		are the experiments for that subject
+		:param uri_tail: query string to append each the rest call
+		:return: a list of dictionaries containing query outcome
+		"""
 		uri = 'projects/{proj}'.format(proj=project)
 		uri += '/subjects/{subj}/experiments/{exp}/assessors?'
 
-		raw = self.loadmulti(uri,subjexpdict,'format=json')
+		raw = self.loadmulti(uri,subjexpdict,uri_tail)
 		return map(json.loads,raw)
 	def getscans(self,project,subjexpdict,uri_tail):
+		"""
+		get scan data
+		
+		:param project: name of XNAT project to query
+		:param subjexpdict: dictionary whose keys are subject labels and values
+		are the experiments for that subject
+		:param uri_tail: query string to append each the rest call
+		:return: a list of dictionaries containing query outcome
+		"""
 		uri = 'projects/{proj}'.format(proj=project)
 		uri += '/subjects/{subj}/experiments/{exp}/scans?'
-		raw = self.loadmulti(uri,subjexpdict,'format=json')
+		raw = self.loadmulti(uri,subjexpdict,uri_tail)
 		return map(json.loads,raw)
 
 
