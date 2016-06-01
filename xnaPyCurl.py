@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
 import json,pycurl
-from single import SingleQuery
-from multi import MultiQuery
+from getters.single import SingleQuery
+from getters.multi import MultiQuery
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 
