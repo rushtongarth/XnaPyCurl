@@ -1,1 +1,1 @@
-from xnaPyCurl import xnaPyCurl
+from XnaPyCurl import XnaPyCurl
