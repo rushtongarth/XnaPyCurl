@@ -6,9 +6,9 @@ from getters.multi import MultiQuery
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 
-class xnaPyCurl(object):
+class XnaPyCurl(object):
 	"""
-	xnaPyCurl: Connect and pull resources from XNAT
+	XnaPyCurl: Connect and access resources on XNAT
 	
 	Class requires an input url to the XNAT API from which 
 	resources are to be pulled
