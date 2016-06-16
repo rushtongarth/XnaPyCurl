@@ -4,5 +4,5 @@ SingleQuery Documentation
 :mod:`SingleQuery`
 **************************
 
-.. autoclass:: single.SingleQuery
+.. autoclass:: getters.single.SingleQuery
    :members:

@@ -1,17 +1,17 @@
-.. xnaPyCurl documentation master file, created by
+.. XnaPyCurl documentation master file, created by
    sphinx-quickstart on Fri May 27 22:17:52 2016.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to xnaPyCurl's documentation!
+Welcome to XnaPyCurl's documentation!
 =====================================
 
 Contents:
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    
-   xnaPyCurl
+   XnaPyCurl
    single
    multi
    utilities

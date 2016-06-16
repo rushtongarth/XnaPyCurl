@@ -4,5 +4,5 @@ MultiQuery Documentation
 :mod:`MultiQuery`
 **************************
 
-.. autoclass:: multi.MultiQuery
+.. autoclass:: getters.multi.MultiQuery
    :members:

@@ -1,8 +1,8 @@
 xnaPyCurl Documentation
 =======================
 
-:mod:`xnaPyCurl`
+:mod:`XnaPyCurl`
 **************************
 
-.. autoclass:: xnaPyCurl.xnaPyCurl
+.. autoclass:: XnaPyCurl.XnaPyCurl
    :members:
