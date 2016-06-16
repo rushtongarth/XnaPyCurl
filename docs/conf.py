@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # XnaPyCurl documentation build configuration file, created by
-# sphinx-quickstart on Thu Jun 16 10:37:39 2016.
+# sphinx-quickstart on Thu Jun 16 13:19:56 2016.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -76,7 +76,8 @@ language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+# This patterns also effect to html_static_path and html_extra_path
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
@@ -120,9 +121,9 @@ html_theme = 'alabaster'
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
 
-# The name for this set of Sphinx documents.  If None, it defaults to
-# "<project> v<release> documentation".
-#html_title = None
+# The name for this set of Sphinx documents.
+# "<project> v<release> documentation" by default.
+#html_title = u'XnaPyCurl v1.0.0'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None
@@ -146,9 +147,10 @@ html_static_path = ['_static']
 # directly to the root of the documentation.
 #html_extra_path = []
 
-# If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
-# using the given strftime format.
-#html_last_updated_fmt = '%b %d, %Y'
+# If not None, a 'Last updated on:' timestamp is inserted at every page
+# bottom, using the given strftime format.
+# The empty string is equivalent to '%b %d, %Y'.
+#html_last_updated_fmt = None
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
@@ -190,11 +192,12 @@ html_static_path = ['_static']
 # Language to be used for generating the HTML full-text search index.
 # Sphinx supports the following languages:
 #   'da', 'de', 'en', 'es', 'fi', 'fr', 'hu', 'it', 'ja'
-#   'nl', 'no', 'pt', 'ro', 'ru', 'sv', 'tr'
+#   'nl', 'no', 'pt', 'ro', 'ru', 'sv', 'tr', 'zh'
 #html_search_language = 'en'
 
 # A dictionary with options for the search language support, empty by default.
-# Now only 'ja' uses this config value
+# 'ja' uses this config value.
+# 'zh' user can custom change `jieba` dictionary path.
 #html_search_options = {'type': 'default'}
 
 # The name of a javascript file (relative to the configuration directory) that
