@@ -7,11 +7,11 @@ Getter Documentation
 :mod:`getters.single`
 --------------------------
 
-.. autoclass:: getters.single.SingleQuery
+.. automodule:: getters.single
    :members:
 
 :mod:`getters.multi`
 --------------------------
 
-.. autoclass:: getters.multi.MultiQuery
+.. automodule:: getters.multi
    :members:
