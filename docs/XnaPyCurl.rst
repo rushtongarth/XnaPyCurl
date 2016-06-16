@@ -1,4 +1,4 @@
-xnaPyCurl Documentation
+XnaPyCurl Documentation
 =======================
 
 :mod:`XnaPyCurl`
