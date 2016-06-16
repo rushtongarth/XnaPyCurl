@@ -9,11 +9,10 @@ Welcome to XnaPyCurl's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    
    XnaPyCurl
-   single
-   multi
+   getters
    utilities
 
 
