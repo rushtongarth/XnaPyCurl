@@ -25,6 +25,7 @@ class parser(object):
 		
 		This function produces a dictionary whose keys are types and values are a list
 			of valid query terms according to the XML
+
 		:returns: dictionary of types and search terms
 		"""
 		self.ct = self.root.findall('schema:complexType',ns)
