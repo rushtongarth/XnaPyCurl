@@ -7,14 +7,26 @@ import xml.etree.ElementTree as ET
 ns = {'schema': 'http://www.w3.org/2001/XMLSchema'}
 
 class parser(object):
+	"""
+	XNAT schema parser class
+	"""
 	def __init__(self,page):
+		"""
+		The instance is initialized by pulling the xml from the xnat central page
+		
+		:param page: xnat schema url
+		"""
 		f = ul.urlopen(page)
 		self.root = ET.fromstring(f.read())
 		f.close()
-	def gettypes(self):
-		self.ct = self.root.findall('schema:complexType',ns)
-		return self.ct
 	def basetypes(self):
+		"""
+		basetypes function
+		
+		This function produces a dictionary whose keys are types and values are a list
+			of valid query terms according to the XML
+		:returns: dictionary of types and search terms
+		"""
 		self.ct = self.root.findall('schema:complexType',ns)
 		extns = lambda x: x.findall('.//*schema:extension',ns)
 		elmts = lambda X: set(reduce(lambda y,z: y+z,map(lambda x: x.findall('.//*schema:element',ns),X[::2])))
