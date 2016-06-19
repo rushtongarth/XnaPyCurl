@@ -5,5 +5,5 @@ XnaPyCurl Documentation
 :mod:`XnaPyCurl`
 **************************
 
-.. automodule:: XnaPyCurl
+.. automodule:: src.XnaPyCurl
    :members:

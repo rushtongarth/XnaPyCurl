@@ -7,11 +7,11 @@ Getter Documentation
 :mod:`getters.single`
 --------------------------
 
-.. automodule:: getters.single
+.. automodule:: src.getters.single
    :members:
 
 :mod:`getters.multi`
 --------------------------
 
-.. automodule:: getters.multi
+.. automodule:: src.getters.multi
    :members:

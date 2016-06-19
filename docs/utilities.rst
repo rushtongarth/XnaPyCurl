@@ -4,6 +4,14 @@ Utility Functions
 :mod:`Utility Functions`
 **************************
 
-.. automodule:: utils.converter
+:mod:`converter`
+--------------------------
+
+.. automodule:: src.utils.converter
    :members:
 
+:mod:`xnatxml`
+--------------------------
+
+.. automodule:: src.utils.xnatxml
+   :members:
