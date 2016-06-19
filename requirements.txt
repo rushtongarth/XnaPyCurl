@@ -1,0 +1,2 @@
+pycurl==7.43.0
+pycrypto==2.7a1
