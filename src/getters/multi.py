@@ -60,6 +60,7 @@ class MultiQuery(object):
 		
 		For all connections established in jarbuilder send the
 		disconnect command to the server
+		
 		:returns: server response (empty string if successful)
 		"""
 		c = pycurl.Curl()
@@ -126,8 +127,10 @@ class MultiQuery(object):
 	def __call__(self,pages):
 		"""
 		populate the pagelist attribute if not previously done
+		
 		:param pages: a list of uris of the form
-		projects/<project_ID>...?<querystring>
+			projects/<project_ID>...?<querystring>
+		
 		:returns: a MultiQuery Object
 		"""
 		if hasattr(self,'cj'):
@@ -141,8 +144,10 @@ class MultiQuery(object):
 	def getfromuri(self):
 		"""
 		Traverse the pagelist and make the appropriate query to the server
-		NB this strategy was adapted from the pycurl examples, specifically:
-		https://github.com/pycurl/pycurl/blob/master/examples/retriever-multi.py
+		
+		.. note:: This strategy was adapted from the pycurl examples, specifically:
+			`this example <https://github.com/pycurl/pycurl/blob/master/examples/retriever-multi.py>`_
+		
 		:returns: output from all queries
 		"""
 		out = []
